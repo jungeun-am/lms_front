@@ -1,11 +1,11 @@
-"use client"
+"use client";
 import React from "react";
 import Link from "next/link";
-import "@/app/(dashboard)/mycourses/mycourses-view.css"; // 추가된 CSS 파일 불러오기
-import { FaPlay, FaUpload } from "react-icons/fa"; // 동영상과 업로드 아이콘
+import "@/app/(dashboard)/mycourses/mycourses-view.css"; // 스타일 파일 불러오기
+import { FaPlay, FaUpload } from "react-icons/fa"; // 아이콘
 
 const CourseDetail = () => {
-  const courseId = 1; // 실제로 동적으로 id 값을 받아와야 합니다.
+  const courseId = 1; // 실제로는 동적 경로에서 받아야 할 수도 있음
 
   const courseData = [
     {
@@ -15,8 +15,7 @@ const CourseDetail = () => {
         { title: "통계프로그램_R 분석", type: "PPT", link: "#" },
         { title: "1주차 두번째 강의안", type: "PPT", link: "#" },
       ],
-      video: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", // 동영상 링크 예시
-      assignment: "/mycourses/mycourses-submit", // 과제 제출 URL 예시
+      video: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
     },
     {
       week: "3월11일 - 3월17일",
@@ -25,7 +24,6 @@ const CourseDetail = () => {
         { title: "JupyterLab 설치하기", type: "PPT", link: "#" },
       ],
       video: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-      assignment: "/submit/2",
     },
     {
       week: "3월18일 - 3월24일",
@@ -34,12 +32,11 @@ const CourseDetail = () => {
         { title: "디지털 기술경영전공과 관련된 학습 자료", type: "PPT", link: "#" },
       ],
       video: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-      assignment: "/submit/3",
     },
   ];
 
   return (
-    <div style={{ padding: "20px" }}>
+    <div className="course-detail-container">
       <h1>강좌 상세보기</h1>
       <h2>주차별 학습 활동</h2>
 
@@ -47,7 +44,7 @@ const CourseDetail = () => {
         <div key={index} className="week-section">
           <h3>{weekData.week}</h3>
 
-          {/* 동영상 링크 추가 */}
+          {/* 동영상 보기 */}
           <div>
             <h4>동영상</h4>
             <a href={weekData.video} target="_blank" rel="noopener noreferrer">
@@ -57,16 +54,17 @@ const CourseDetail = () => {
             </a>
           </div>
 
-          {/* 과제 제출 버튼 추가 */}
+          {/* 과제 제출 버튼 */}
           <div>
             <h4>과제 제출</h4>
-            <Link href={weekData.assignment}>
+            <Link href={`/mycourses/mycourses-view/${index + 1}`}>
               <button className="submit-assignment-btn">
-                <FaUpload /> 과제 제출하기
+                <FaUpload /> {index + 1}주차 과제 제출
               </button>
             </Link>
           </div>
 
+          {/* 학습 자료 */}
           <h4>학습 자료</h4>
           <ul>
             {weekData.activities.map((activity, idx) => (

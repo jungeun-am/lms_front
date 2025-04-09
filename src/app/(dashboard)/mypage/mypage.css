@@ -1,0 +1,207 @@
+body {
+  background-color: #f8f9fa;
+  font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+}
+
+.container {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  max-width: 960px;
+  margin: 40px auto;
+}
+
+h4 {
+  font-size: 1.5rem;
+  border-left: 5px solid #0077b6;
+  padding-left: 12px;
+  margin-bottom: 24px;
+  color: #333;
+}
+
+h5 {
+  font-size: 1.15rem;
+  color: #0077b6;
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+
+section {
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 24px;
+  background-color: #fefefe;
+  margin-bottom: 32px;
+}
+
+label.col-form-label {
+  font-weight: 600;
+  color: #495057;
+  white-space: nowrap;
+}
+
+input.form-control,
+select.form-control,
+textarea.form-control {
+  border-radius: 8px;
+  border: 1px solid #ced4da;
+  padding: 8px 12px;
+  font-size: 0.95rem;
+}
+
+input.form-control:focus,
+select.form-control:focus,
+textarea.form-control:focus {
+  border-color: #0077b6;
+  box-shadow: 0 0 0 3px rgba(0, 119, 182, 0.2);
+  outline: none;
+}
+
+.btn-primary {
+  background: linear-gradient(to right, #00b4d8, #0077b6);
+  border: none;
+  padding: 10px 24px;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: background 0.2s ease-in-out;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(to right, #0096c7, #023e8a);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+  gap: 16px;
+}
+
+.col-sm-2 {
+  flex: 0 0 160px;
+  max-width: 160px;
+}
+
+.col-sm-10 {
+  flex: 1;
+}
+
+.text-end {
+  text-align: right;
+  margin-top: 24px;
+}
+/* midterm.css */
+
+.midterm-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
+  border-left: 4px solid #0077b6;
+  padding-left: 12px;
+  margin-bottom: 24px;
+}
+
+.midterm-info-table {
+  width: 100%;
+  max-width: 400px;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+  margin-bottom: 24px;
+}
+
+.midterm-info-table td {
+  padding: 8px;
+  border-bottom: 1px solid #999;
+}
+
+.midterm-info-table .label {
+  font-weight: bold;
+  width: 80px;
+  color: #333;
+}
+
+/* 성적 테이블 */
+.midterm-grades-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  border: 1px solid #ccc;
+  background-color: #fff;
+}
+
+.midterm-grades-table thead {
+  background-color: #005b79;
+  color: white;
+}
+
+.midterm-grades-table th,
+.midterm-grades-table td {
+  border: 1px solid #ccc;
+  padding: 10px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.midterm-grades-table .text-center {
+  text-align: center;
+  padding: 16px;
+  color: #888;
+}
+
+/* grades.css */
+
+.grades-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  border-left: 5px solid #0077b6;
+  padding-left: 12px;
+  color: #333;
+  margin-bottom: 24px;
+}
+
+.grades-section {
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 24px;
+  background-color: #ffffff;
+  margin-bottom: 32px;
+}
+
+.grades-section h5 {
+  font-size: 1.15rem;
+  color: #0077b6;
+  margin-bottom: 16px;
+  font-weight: bold;
+}
+
+/* 공통 테이블 스타일 */
+.grades-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+  background-color: #fff;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  border: 1px solid #ccc;
+}
+
+.grades-table th,
+.grades-table td {
+  border: 1px solid #ccc;
+  padding: 10px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.grades-table thead {
+  background-color: #005b79;
+  color: #fff;
+}
+
+.grades-table .text-muted {
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 8px;
+}

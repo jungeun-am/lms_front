@@ -1,0 +1,206 @@
+/* 전체 배경 및 카드 박스 */
+body {
+  background-color: #f7f9fc;
+  font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+}
+
+.w-100 {
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  border: none;
+}
+
+/* 섹션 제목 */
+h5 {
+  font-size: 1.2rem;
+  color: #333;
+  border-left: 4px solid #0077b6;
+  padding-left: 12px;
+  margin-bottom: 16px;
+}
+
+/* 입력 필드 및 드롭다운 공통 */
+.form-control,
+.dropdown-toggle {
+  background-color: #eef3f7;
+  border: 1px solid #d2dae2;
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+.form-control:focus,
+.dropdown-toggle:focus {
+  border-color: #0077b6;
+  box-shadow: 0 0 0 3px rgba(0, 119, 182, 0.2);
+  outline: none;
+}
+
+.dropdown-menu {
+  font-size: 0.95rem;
+}
+
+/*조회버튼*/
+.btn-primary {
+  background: linear-gradient(to right, #00b4d8, #0077b6);
+  border: none;
+  color: white;
+  padding: 10px 36px; /* ← 좌우 padding 늘림 */
+  font-weight: bold;
+  border-radius: 8px;
+  transition: 0.2s ease-in-out;
+  min-width: 100px; /* ← 버튼 최소 너비 보장 */
+  text-align: center;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(to right, #0096c7, #023e8a);
+}
+
+/* 테이블 공통 */
+.table {
+  font-size: 0.93rem;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.table thead {
+  background-color: #0077b6;
+  color: white;
+}
+
+.table th, .table td {
+  vertical-align: middle;
+  border: 1px solid #dee2e6;
+  padding: 10px;
+}
+
+/* 버튼들 */
+.btn-outline-primary,
+.btn-outline-danger {
+  font-size: 0.85rem;
+  padding: 4px 12px;
+  border-radius: 6px;
+}
+
+.btn-outline-primary:hover {
+  background-color: #0077b6;
+  color: white;
+}
+
+.btn-outline-danger:hover {
+  background-color: #d90429;
+  color: white;
+}
+
+/* 장바구니 카운터 */
+.bg-primary {
+  background-color: #0077b6 !important;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: bold;
+}
+
+.search-box {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: center;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.search-box-row {
+  display: contents;
+}
+
+.search-box-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.search-box-field select,
+.search-box-field input {
+  width: 220px;
+}
+
+.search-box label {
+  white-space: nowrap;
+  font-weight: bold;
+  width: 80px;
+}
+
+.search-box .form-control,
+.search-box .dropdown-toggle {
+  width: 100%;
+}
+
+.form-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.form-row label {
+  width: 80px;
+}
+.form-row select,
+.form-row input {
+  margin-right: 10px;
+  padding: 5px;
+}
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.custom-btn {
+  padding: 6px 18px;
+  font-size: 0.9rem;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+}
+
+/* 일괄선택 버튼 스타일 개선 */
+.btn-outline-secondary.custom-btn {
+  border: 1px solid #adb5bd;
+  color: #495057;
+  background-color: #f1f3f5;
+}
+
+.btn-outline-secondary.custom-btn:hover {
+  background-color: #ced4da;
+  color: #212529;
+}
+
+
+.btn-outline-primary.custom-btn {
+  border: 1px solid #0077b6;
+  color: #0077b6;
+  background-color: white;
+}
+
+.btn-outline-primary.custom-btn:hover {
+  background-color: #0077b6;
+  color: white;
+}
+.form-control {
+  height: 32px;
+  font-size: 0.85rem;
+  padding: 4px 8px;
+}
+
+.btn-sm {
+  height: 32px;
+  padding: 4px 12px;
+  font-size: 0.85rem;
+}
+.enrollment-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
