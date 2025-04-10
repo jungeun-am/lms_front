@@ -99,6 +99,7 @@ h5 {
 /* 장바구니 카운터 */
 .bg-primary {
   background-color: #0077b6 !important;
+  color: #ffffff !important;
   border-radius: 12px;
   font-size: 0.9rem;
   font-weight: bold;
@@ -200,7 +201,7 @@ h5 {
   font-size: 0.85rem;
 }
 .enrollment-container {
-  max-width: 1200px;
+  width: 100%;
+  max-width: 1500px; /* 또는 100% */
   margin: 0 auto;
-  padding: 24px;
 }
