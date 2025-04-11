@@ -1,42 +1,57 @@
-'use client'
+'use client';
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "@/app/(dashboard)/mycourses/mycourses.css";
-import Search from "../../../../components/courses/Search";
+import LectureList from "@/components/courses/LectureList";
 
 const Cart = () => {
-  const [courseList] = useState([
-    { id: 1, code: 'CS101', name: '프로그래밍 기초', category: '전공필수', professor: '홍길동', schedule: '월 1-2교시' },
-    { id: 2, code: 'CS102', name: '자료구조', category: '전공선택', professor: '이몽룡', schedule: '화 3-4교시' },
-    { id: 3, code: 'CS103', name: '운영체제', category: '전공필수', professor: '성춘향', schedule: '수 5-6교시' },
-  ]);
-
+  const [courseList, setCourseList] = useState([]);
   const [cartList, setCartList] = useState([]);
   const [priorities, setPriorities] = useState({});
   const [level, setLevel] = useState('');
   const [professor, setProfessor] = useState('');
 
+  // ✅ 백엔드에서 강의 목록 불러오기
+  useEffect(() => {
+    fetchCourseList();
+  }, []);
+
+  const fetchCourseList = async () => {
+    try {
+      const response = await fetch("http://localhost:8080/api/mycourses/cart", {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!response.ok) throw new Error("서버 응답 실패");
+      const data = await response.json();
+      setCourseList(data);
+    } catch (error) {
+      console.error("강의 목록 불러오기 실패:", error);
+    }
+  };
+
   const handleSearch = () => {
     console.log("검색 실행됨:", level, professor);
+    // 여기에 추후 검색 필터 로직 연결 가능
   };
 
   const addToCart = (course) => {
-    if (!cartList.find((c) => c.id === course.id)) {
+    if (!cartList.find((c) => c.lecture_id === course.lecture_id)) {
       setCartList([...cartList, course]);
     }
   };
 
-  const removeFromCart = (id) => {
-    setCartList(cartList.filter((c) => c.id !== id));
+  const removeFromCart = (lecture_id) => {
+    setCartList(cartList.filter((c) => c.lecture_id !== lecture_id));
     setPriorities((prev) => {
       const newPriorities = { ...prev };
-      delete newPriorities[id];
+      delete newPriorities[lecture_id];
       return newPriorities;
     });
   };
 
-  const handlePriorityChange = (id, value) => {
-    setPriorities({ ...priorities, [id]: value });
+  const handlePriorityChange = (lecture_id, value) => {
+    setPriorities({ ...priorities, [lecture_id]: value });
   };
 
   const handleSave = () => {
@@ -47,49 +62,35 @@ const Cart = () => {
   return (
     <div className="enrollment-container mb-3">
       <h5 className="fw-bold mb-0 border p-2 d-inline-block">검색</h5>
-      <Search
-        level={level}
-        setLevel={setLevel}
-        professor={professor}
-        setProfessor={setProfessor}
-        onSearch={handleSearch}
-      />
+      <div className="search-box mb-3">
+        <div className="d-flex align-items-center gap-3 mb-2">
+          <label style={{ width: "80px" }}>교과 수준</label>
+          <input
+            className="form-control"
+            style={{ flex: 1 }}
+            value={level}
+            onChange={(e) => setLevel(e.target.value)}
+          />
+        </div>
+        <div className="d-flex align-items-center gap-3 mb-2">
+          <label style={{ width: "80px" }}>교수명</label>
+          <input
+            className="form-control"
+            style={{ flex: 1 }}
+            value={professor}
+            onChange={(e) => setProfessor(e.target.value)}
+          />
+        </div>
+        <button className="btn btn-primary" onClick={handleSearch}>검색</button>
+      </div>
 
       <h5 className="fw-bold mb-2 border p-2 d-inline-block mt-4">개설강좌 목록</h5>
-      <table className="table table-bordered text-center" style={{ tableLayout: 'fixed', width: '100%' }}>
-        <thead className="table-primary">
-        <tr>
-          <th>NO</th>
-          <th>장바구니</th>
-          <th>이수구분</th>
-          <th>교과목코드</th>
-          <th>교과목명</th>
-          <th>담당교수</th>
-          <th>시간표</th>
-        </tr>
-        </thead>
-        <tbody>
-        {courseList.map((course, index) => (
-          <tr key={course.id}>
-            <td>{index + 1}</td>
-            <td>
-              <button
-                className="btn btn-sm btn-outline-primary"
-                onClick={() => addToCart(course)}
-                disabled={cartList.find((c) => c.id === course.id)}
-              >
-                담기
-              </button>
-            </td>
-            <td>{course.category}</td>
-            <td>{course.code}</td>
-            <td>{course.name}</td>
-            <td>{course.professor}</td>
-            <td>{course.schedule}</td>
-          </tr>
-        ))}
-        </tbody>
-      </table>
+      <LectureList
+        lectures={courseList}
+        buttonLabel="담기"
+        onClick={addToCart}
+        isDisabled={(lecture) => cartList.some((c) => c.lecture_id === lecture.lecture_id)}
+      />
 
       <div className="d-flex align-items-center justify-content-between mb-2 mt-4">
         <h5 className="fw-bold mb-0 border p-2 d-inline-block">장바구니 수강목록</h5>
@@ -103,42 +104,47 @@ const Cart = () => {
           <th>우선순위</th>
           <th>삭제</th>
           <th>이수구분</th>
+          <th>개설전공학과</th>
           <th>교과목코드</th>
           <th>교과목명</th>
-          <th>담당교수</th>
+          <th>교과목 수준</th>
+          <th>학점</th>
           <th>시간표</th>
         </tr>
         </thead>
         <tbody>
         {cartList.length === 0 ? (
           <tr>
-            <td colSpan={8} className="text-muted">장바구니에 담긴 과목이 없습니다.</td>
+            <td colSpan={10} className="text-muted">장바구니에 담긴 과목이 없습니다.</td>
           </tr>
         ) : (
           cartList.map((course, index) => (
-            <tr key={course.id}>
+            <tr key={course.lecture_id}>
               <td>{index + 1}</td>
               <td>
                 <input
                   type="text"
-                  className="form-control" style={{ width: "80px" }}
-                  value={priorities[course.id] || ''}
-                  onChange={(e) => handlePriorityChange(course.id, e.target.value)}
+                  className="form-control"
+                  style={{ width: "80px" }}
+                  value={priorities[course.lecture_id] || ''}
+                  onChange={(e) => handlePriorityChange(course.lecture_id, e.target.value)}
                 />
               </td>
               <td>
                 <button
                   className="btn btn-sm btn-outline-danger"
-                  onClick={() => removeFromCart(course.id)}
+                  onClick={() => removeFromCart(course.lecture_id)}
                 >
                   삭제
                 </button>
               </td>
-              <td>{course.category}</td>
-              <td>{course.code}</td>
-              <td>{course.name}</td>
-              <td>{course.professor}</td>
-              <td>{course.schedule}</td>
+              <td>{course.course_type}</td>
+              <td>{course.department}</td>
+              <td>{course.subject_code}</td>
+              <td>{course.subject_name}</td>
+              <td>{course.subject_level}</td>
+              <td>{course.credit}</td>
+              <td>{course.timetable}</td>
             </tr>
           ))
         )}
