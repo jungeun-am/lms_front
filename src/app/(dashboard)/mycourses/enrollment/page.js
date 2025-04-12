@@ -1,4 +1,5 @@
 'use client';
+
 import React, { useEffect, useRef, useState } from "react";
 import "@/app/(dashboard)/mycourses/mycourses.css";
 import LectureList from "@/components/courses/LectureList";
@@ -6,13 +7,28 @@ import LectureList from "@/components/courses/LectureList";
 const Enrollment = () => {
   const [courseList, setCourseList] = useState([]);
   const [enrolledCourses, setEnrolledCourses] = useState([]);
+  const [cartList, setCartList] = useState([]);
 
   const ftypeRef = useRef(null);
   const fkeyRef = useRef(null);
 
+  // ✅ 콘솔 확인용
+  useEffect(() => {
+    console.log("✅ cartList:", cartList);
+  }, [cartList]);
+
+  useEffect(() => {
+    console.log("✅ enrolledCourses:", enrolledCourses);
+  }, [enrolledCourses]);
+
+  useEffect(() => {
+    console.log("✅ cartList 우선순위:", cartList.map(c => c.priorityOrder));
+  }, [cartList]);
+
   useEffect(() => {
     fetchLectureList();
     fetchEnrolledCourses();
+    fetchCartList();
   }, []);
 
   const fetchLectureList = async () => {
@@ -26,6 +42,19 @@ const Enrollment = () => {
       setCourseList(data);
     } catch (error) {
       console.error("강의 목록 불러오기 실패:", error);
+    }
+  };
+
+  const fetchCartList = async () => {
+    try {
+      const res = await fetch("http://localhost:8080/api/mycourses/cart?stdtId=20250001");
+      console.log("📡 장바구니 응답 상태:", res.status);  // 이거 추가!
+      if (!res.ok) throw new Error("장바구니 목록 요청 실패");
+      const data = await res.json();
+      console.log("📦 장바구니 응답 데이터:", data);  // 이거도 추가!
+      setCartList(data);
+    } catch (err) {
+      console.error("장바구니 목록 불러오기 실패:", err);
     }
   };
 
@@ -58,44 +87,43 @@ const Enrollment = () => {
 
   const handleApply = async (course) => {
     const stdtId = 20250001;
-    const applyDate = new Date().toISOString().slice(0, 10);
+    const lectureId = course.lectureId || course.lecture?.lectureId;
 
-    console.log("course:", course);
-    console.log("lecture:", course.lectureId);
+    if (!lectureId) {
+      alert("강의 ID를 찾을 수 없습니다.");
+      return;
+    }
+
+    if (enrolledCourses.some(c => c.lectureId === lectureId)) {
+      alert("이미 신청된 강의입니다.");
+      return;
+    }
 
     const data = {
-      stdtId: 20250001,
-      lectureId: course.lectureId,
-      applyDate: "2025-04-10T15:55:50",
+      stdtId,
+      lectureId,
+      applyDate: new Date().toISOString(), // <-- 수정됨
     };
 
-    console.log("data:", data);
+    try {
+      const response = await fetch("http://localhost:8080/api/mycourses/enroll", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
 
-    fetch('http://localhost:8080/api/mycourses/enroll', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    }).then(async response => {
       if (response.ok) {
-        console.log('response',response);
-        alert('글쓰기가 완료되었습니다!!');
-        location.href = '';
+        alert("수강신청이 완료되었습니다!!");
+        fetchEnrolledCourses();
       } else if (response.status === 400) {
         alert(await response.text());
       } else {
-        alert('게시판 글쓰기에 실패했습니다!! 다시 시도해 주세요!');
+        alert("수강신청에 실패했습니다!! 다시 시도해 주세요!");
       }
-    }).catch(error => {
-      console.error('error:', error);
-      alert('서버와 통신중 오류가 발생했습니다!! 관리자에게 문의하세요!');
-    });
-
-    //   alert("수강 신청 완료!");
-    //   setEnrolledCourses((prev) => [...prev, course]);
-    // } catch (error) {
-    //   console.error("신청 실패:", error);
-    //   alert("신청 중 오류 발생");
-    // }
+    } catch (error) {
+      console.error("❌ 수강신청 오류:", error);
+      alert("서버와 통신 중 오류가 발생했습니다!! 관리자에게 문의하세요!");
+    }
   };
 
   const fetchEnrolledCourses = async () => {
@@ -109,32 +137,9 @@ const Enrollment = () => {
     }
   };
 
-  const renderCourseRows = () => {
-    if (!Array.isArray(courseList) || courseList.length === 0) {
-      return <tr><td colSpan="9" className="text-muted">개설된 강좌가 없습니다!</td></tr>;
-    }
-    return courseList.map((course, index) => (
-      <tr key={course.lecture_id}>
-        <td>{index + 1}</td>
-        <td>
-          <button className="btn btn-sm btn-outline-primary" onClick={() => handleApply(course)}>신청</button>
-        </td>
-        <td>{course.course_type}</td>
-        <td>{course.department}</td>
-        <td>{course.subject_code}</td>
-        <td>{course.subject_name}</td>
-        <td>{course.subject_level}</td>
-        <td>{course.credit}</td>
-        <td>{course.timetable}</td>
-      </tr>
-    ));
-  };
-
   const handleCancel = async (course) => {
     const stdtId = 20250001;
-    const lectureId = course.lectureId?.lectureId; // ← 이 줄!
-
-    console.log("🔍 취소 요청:", {stdtId, lectureId});
+    const lectureId = course.lectureId;
 
     if (!window.confirm("정말 수강취소하시겠습니까?")) return;
 
@@ -155,23 +160,18 @@ const Enrollment = () => {
       alert("수강취소 중 오류 발생");
     }
   };
+
   const renderEnrolledRows = () => {
     if (enrolledCourses.length === 0) {
       return <tr><td colSpan="9" className="text-muted">신청한 강좌가 없습니다.</td></tr>;
     }
     return enrolledCourses.map((course, index) => (
-      <tr key={course.lectureId}>
+      <tr key={course.registerId}>
         <td>{index + 1}</td>
-        {/*<td><button className="btn btn-sm btn-outline-danger"*/}
-        {/*            onClick={() => handleCancel(course.lectureId)} >취소</button></td>*/}
         <td>
           <button
             className="btn btn-sm btn-outline-danger"
-            onClick={() => {
-              console.log("🔍 취소 클릭: course 객체", course);
-              console.log("lectureId 확인:", course.lectureId || course.lectureId);
-              handleCancel(course);
-            }}
+            onClick={() => handleCancel(course)}
           >
             취소
           </button>
@@ -185,6 +185,60 @@ const Enrollment = () => {
         <td>{course.timetable}</td>
       </tr>
     ));
+  };
+
+  const handleBulkApply = async () => {
+    const stdtId = 20250001;
+
+    if (cartList.length === 0) {
+      alert("장바구니에 강좌가 없습니다.");
+      return;
+    }
+
+    // 우선순위 정렬
+    const sortedList = [...cartList].sort((a, b) => {
+      const p1 = parseInt(a.priorityOrder ?? 9999, 10);
+      const p2 = parseInt(b.priorityOrder ?? 9999, 10);
+      return p1 - p2;
+    });
+
+
+    let successCount = 0;
+
+    for (const course of sortedList) {
+      const lectureId = course.lectureId || course.lecture?.lectureId;
+
+      if (!lectureId || enrolledCourses.some(c => c.lectureId === lectureId)) {
+        continue;
+      }
+
+      const data = {
+        stdtId,
+        lectureId,
+        applyDate: new Date().toISOString(),
+      };
+
+      try {
+        const response = await fetch("http://localhost:8080/api/mycourses/enroll", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+
+        if (response.ok) {
+          successCount++;
+        }
+      } catch (error) {
+        console.error(`❌ 강의 ${lectureId} 신청 중 오류:`, error);
+      }
+    }
+
+    if (successCount > 0) {
+      alert(`${successCount}개의 강좌를 일괄 신청했습니다.`);
+      fetchEnrolledCourses(); // 수강신청 목록 갱신
+    } else {
+      alert("신청 가능한 강의가 없거나 모두 실패했습니다.");
+    }
   };
 
   const totalCredits = enrolledCourses.reduce((sum, course) => sum + (parseInt(course.credit) || 0), 0);
@@ -215,11 +269,14 @@ const Enrollment = () => {
       {/* 개설강좌 */}
       <div className="mb-4 mt-4">
         <h5 className="fw-bold mb-2 border p-2 d-inline-block">개설강좌 목록</h5>
-        <LectureList
-          lectures={courseList}
-          buttonLabel="신청"
-          onClick={handleApply}
-        />
+        <LectureList lectures={courseList} buttonLabel="신청" onClick={handleApply} />
+      </div>
+
+      {/* 장바구니 강좌 */}
+      <div className="mb-4 mt-4">
+        <h5 className="fw-bold mb-2 border p-2 d-inline-block">장바구니 강좌</h5>
+        <button className="btn btn-primary" onClick={handleBulkApply}>일괄신청</button>
+        <LectureList lectures={cartList} buttonLabel="신청" onClick={handleApply} />
       </div>
 
       {/* 신청내역 */}

@@ -3,18 +3,28 @@
 import React, { useEffect, useState } from "react";
 import "@/app/(dashboard)/mycourses/mycourses.css";
 import LectureList from "@/components/courses/LectureList";
+import LectureSearch from "@/components/courses/LectureSearch";
 
 const Cart = () => {
   const [courseList, setCourseList] = useState([]);
   const [cartList, setCartList] = useState([]);
   const [priorities, setPriorities] = useState({});
-  const [level, setLevel] = useState('');
-  const [professor, setProfessor] = useState('');
 
-  // ✅ 백엔드에서 강의 목록 불러오기
+  // ✅ localStorage에서 초기값 불러오기
   useEffect(() => {
     fetchCourseList();
+
+    const savedCart = localStorage.getItem("cartList");
+    const savedPriorities = localStorage.getItem("priorities");
+
+    if (savedCart) setCartList(JSON.parse(savedCart));
+    if (savedPriorities) setPriorities(JSON.parse(savedPriorities));
   }, []);
+
+  const updateLocalStorage = (cart, prios) => {
+    localStorage.setItem("cartList", JSON.stringify(cart));
+    localStorage.setItem("priorities", JSON.stringify(prios));
+  };
 
   const fetchCourseList = async () => {
     try {
@@ -30,66 +40,92 @@ const Cart = () => {
     }
   };
 
-  const handleSearch = () => {
-    console.log("검색 실행됨:", level, professor);
-    // 여기에 추후 검색 필터 로직 연결 가능
-  };
+  const handleSearch = async (type, keyword) => {
+    if (!type) {
+      alert("검색조건을 선택해주세요.");
+      return;
+    }
 
-  const addToCart = (course) => {
-    if (!cartList.find((c) => c.lecture_id === course.lecture_id)) {
-      setCartList([...cartList, course]);
+    try {
+      const url = keyword
+        ? `http://localhost:8080/api/mycourses/find/${type}/${keyword}`
+        : `http://localhost:8080/api/mycourses/find/${type}`;
+
+      const response = await fetch(url, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (!response.ok) throw new Error("서버 응답 실패");
+      const data = await response.json();
+      setCourseList(data);
+    } catch (error) {
+      console.error("강의 목록 불러오기 실패:", error);
     }
   };
 
-  const removeFromCart = (lecture_id) => {
-    setCartList(cartList.filter((c) => c.lecture_id !== lecture_id));
-    setPriorities((prev) => {
-      const newPriorities = { ...prev };
-      delete newPriorities[lecture_id];
-      return newPriorities;
-    });
+  const addToCart = (course) => {
+    if (cartList.find((c) => c.lectureId === course.lectureId)) {
+      alert("이미 장바구니에 담긴 과목입니다.");
+      return;
+    }
+    const newCart = [...cartList, course];
+    setCartList(newCart);
+    updateLocalStorage(newCart, priorities);
   };
 
-  const handlePriorityChange = (lecture_id, value) => {
-    setPriorities({ ...priorities, [lecture_id]: value });
+  const removeFromCart = (lectureId) => {
+    const newCart = cartList.filter((c) => c.lectureId !== lectureId);
+    const newPriorities = { ...priorities };
+    delete newPriorities[lectureId];
+    setCartList(newCart);
+    setPriorities(newPriorities);
+    updateLocalStorage(newCart, newPriorities);
   };
 
-  const handleSave = () => {
-    alert('작업이 저장되었습니다!');
-    console.log('저장된 우선순위:', priorities);
+  const handlePriorityChange = (lectureId, value) => {
+    const newPriorities = { ...priorities, [lectureId]: value };
+    setPriorities(newPriorities);
+    updateLocalStorage(cartList, newPriorities);
+  };
+
+  const handleSave = async (e) => {
+    e?.preventDefault();
+
+    const payload = cartList.map((course) => ({
+      stdtId: 20250001,
+      lectureId: course.lectureId,
+      priorityOrder: parseInt(priorities[course.lectureId]) || null,
+    }));
+
+    try {
+      const res = await fetch("http://localhost:8080/api/mycourses/cart/priorities", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        alert("우선순위 저장 완료!");
+      } else {
+        alert("저장 실패: " + await res.text());
+      }
+    } catch (err) {
+      console.error("우선순위 저장 오류:", err);
+      alert("저장 중 오류 발생!");
+    }
   };
 
   return (
     <div className="enrollment-container mb-3">
       <h5 className="fw-bold mb-0 border p-2 d-inline-block">검색</h5>
-      <div className="search-box mb-3">
-        <div className="d-flex align-items-center gap-3 mb-2">
-          <label style={{ width: "80px" }}>교과 수준</label>
-          <input
-            className="form-control"
-            style={{ flex: 1 }}
-            value={level}
-            onChange={(e) => setLevel(e.target.value)}
-          />
-        </div>
-        <div className="d-flex align-items-center gap-3 mb-2">
-          <label style={{ width: "80px" }}>교수명</label>
-          <input
-            className="form-control"
-            style={{ flex: 1 }}
-            value={professor}
-            onChange={(e) => setProfessor(e.target.value)}
-          />
-        </div>
-        <button className="btn btn-primary" onClick={handleSearch}>검색</button>
-      </div>
+      <LectureSearch onSearch={handleSearch} />
 
       <h5 className="fw-bold mb-2 border p-2 d-inline-block mt-4">개설강좌 목록</h5>
       <LectureList
         lectures={courseList}
         buttonLabel="담기"
         onClick={addToCart}
-        isDisabled={(lecture) => cartList.some((c) => c.lecture_id === lecture.lecture_id)}
       />
 
       <div className="d-flex align-items-center justify-content-between mb-2 mt-4">
@@ -119,30 +155,30 @@ const Cart = () => {
           </tr>
         ) : (
           cartList.map((course, index) => (
-            <tr key={course.lecture_id}>
+            <tr key={course.lectureId}>
               <td>{index + 1}</td>
               <td>
                 <input
                   type="text"
                   className="form-control"
                   style={{ width: "80px" }}
-                  value={priorities[course.lecture_id] || ''}
-                  onChange={(e) => handlePriorityChange(course.lecture_id, e.target.value)}
+                  value={priorities[course.lectureId] || ''}
+                  onChange={(e) => handlePriorityChange(course.lectureId, e.target.value)}
                 />
               </td>
               <td>
                 <button
                   className="btn btn-sm btn-outline-danger"
-                  onClick={() => removeFromCart(course.lecture_id)}
+                  onClick={() => removeFromCart(course.lectureId)}
                 >
                   삭제
                 </button>
               </td>
-              <td>{course.course_type}</td>
+              <td>{course.courseType}</td>
               <td>{course.department}</td>
-              <td>{course.subject_code}</td>
-              <td>{course.subject_name}</td>
-              <td>{course.subject_level}</td>
+              <td>{course.subjectCode}</td>
+              <td>{course.subjectName}</td>
+              <td>{course.subjectLevel}</td>
               <td>{course.credit}</td>
               <td>{course.timetable}</td>
             </tr>
