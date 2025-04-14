@@ -10,12 +10,12 @@ const Score = () => {
 
   useEffect(() => {
     const stdtId = 20250001;
-    const courseYear = '2025';
+    const courseYear = 2025;
     const semesterCd = 10;
 
     const fetchGrades = async () => {
       const stdtId = 20250001;
-      const courseYear = '2025';
+      const courseYear = 2025;
       const semesterCd = 10;
 
       try {

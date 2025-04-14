@@ -12,7 +12,6 @@ export default function Sidebar() {
           <ul>
             <li><Link href="/mycourses/mycourses"><FaBookOpen /> 수강하고 있는 강좌</Link></li>
             <li><Link href="/mypage/edit"><FaUserEdit /> 개인정보 수정</Link></li>
-            <li><Link href="/mypage/totalScore"><FaTachometerAlt /> 전체성적확인</Link></li>
             <li><Link href="/mypage/score"><FaFileAlt /> 성적확인</Link></li>
           </ul>
         </li>
